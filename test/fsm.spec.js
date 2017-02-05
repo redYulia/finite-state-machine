@@ -1,3 +1,4 @@
+"use strict";
 const FSM = require('../src/fsm');
 
 /** Good luck! :) **/
@@ -58,6 +59,16 @@ describe('FSM', () => {
             const student = new FSM(config);
 
             expect(() => student.changeState('hmmm... exception?')).to.throw(Error);
+            
+            var err = new ReferenceError('This is a bad function.');
+            var fn = function () { throw err; }
+            expect(fn).to.throw(ReferenceError);
+            expect(fn).to.throw(Error);
+            expect(fn).to.throw(/bad function/);
+            expect(fn).to.not.throw('good function');
+            expect(fn).to.throw(ReferenceError, /bad function/);
+            expect(fn).to.throw(err);
+            
         });
     });
 

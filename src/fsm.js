@@ -1,22 +1,37 @@
+"use strict";
 class FSM {
     /**
      * Creates new FSM instance.
      * @param config
      */
-    constructor(config) {}
-
+    constructor(config) {
+        if(!config) throw new Error("Config not passed");
+        else this.config = config;
+    }
+        
     /**
      * Returns active state.
      * @returns {String}
      */
-    getState() {}
+    getState() {
+        if (this.config) return this.config.initial;
+    }
 
     /**
      * Goes to specified state.
      * @param state
      */
-    changeState(state) {}
-
+    changeState(state) {
+        var states = this.config.states;
+        if(states.hasOwnProperty(state)) {
+                this.config.initial = state; 
+            }
+        else throw new Error("false");
+            
+            /*if (state == 'undefined') 
+            else this.config = config;*/
+    }
+        
     /**
      * Changes state according to event transition rules.
      * @param event
@@ -55,6 +70,38 @@ class FSM {
      */
     clearHistory() {}
 }
+
+var config = {
+    initial: 'normal',
+    states: {
+        normal: {
+            transitions: {
+                study: 'busy',
+            }
+        },
+        busy: {
+            transitions: {
+                get_tired: 'sleeping',
+                get_hungry: 'hungry',
+            }
+        },
+        hungry: {
+            transitions: {
+                eat: 'normal'
+            },
+        },
+        sleeping: {
+            transitions: {
+                get_hungry: 'hungry',
+                get_up: 'normal',
+            },
+        },
+    }
+};
+var stud2 = new FSM(config);
+console.log(stud2.getState());
+stud2.changeState('hungry');
+console.log(stud2.getState());
 
 module.exports = FSM;
 
