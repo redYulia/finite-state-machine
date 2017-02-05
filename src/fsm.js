@@ -35,9 +35,9 @@ class FSM {
      * @param event
      */
     trigger(event) {
-        var states = this.config.states;
-        var prop = this.currentState;
-        var state = states[prop];
+        var states = this.config.states,
+            prop = this.currentState,
+            state = states[prop];
         if (event in state.transitions) this.currentState = state.transitions[event];
         else throw new Error("State doesn't exist");
         
@@ -47,7 +47,7 @@ class FSM {
      * Resets FSM state to initial.
      */
     reset() {
-        this.config.initial =  this.defaultState;
+        this.currentState = this.config.initial;
     }
 
     /**
@@ -56,8 +56,25 @@ class FSM {
      * @param event
      * @returns {Array}
      */
-    getStates(event) {}
-
+    getStates(event) {
+        var states = this.config.states,
+            state = {},
+            result = [];
+        if (!event) {
+            return Object.getOwnPropertyNames(states);
+        }
+        else {
+            for (var i in states) {
+                state = states[i];
+                if (event in state.transitions) {
+                    result.push(i);
+                }
+            }
+            return result;
+        }
+        
+    }
+        
     /**
      * Goes back to previous state.
      * Returns false if undo is not available.
@@ -112,6 +129,9 @@ console.log(stud2.getState());*/
 stud2.trigger('study');
 /*stud2.trigger('eat');*/
 console.log(stud2.getState());
+console.log(stud2.getStates());
+console.log(stud2.getStates('study'));
+console.log(stud2.getStates('get_hungry'));
 /*stud2.trigger('kill');*/
 module.exports = FSM;
 
