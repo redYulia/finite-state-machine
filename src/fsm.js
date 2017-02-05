@@ -9,6 +9,8 @@ class FSM {
         else {
             this.config = config;
             this.currentState = this.config.initial;
+            this.history = [this.currentState];
+            this.cancelled=[];
         }
     }
     
@@ -26,7 +28,10 @@ class FSM {
      */
     changeState(state) {
         var states = this.config.states;
-        if(states.hasOwnProperty(state)) this.currentState = state;
+        if(states.hasOwnProperty(state)) {
+            this.currentState = state;
+            this.history.push(this.currentState);
+        }
         else throw new Error("State doesn't exist");
     }
     
@@ -38,7 +43,10 @@ class FSM {
         var states = this.config.states,
             prop = this.currentState,
             state = states[prop];
-        if (event in state.transitions) this.currentState = state.transitions[event];
+        if (event in state.transitions) {
+            this.currentState = state.transitions[event];
+            this.history.push(this.currentState);
+        }
         else throw new Error("State doesn't exist");
         
     }
@@ -48,6 +56,7 @@ class FSM {
      */
     reset() {
         this.currentState = this.config.initial;
+        this.history.push(this.currentState);
     }
 
     /**
@@ -80,14 +89,37 @@ class FSM {
      * Returns false if undo is not available.
      * @returns {Boolean}
      */
-    undo() {}
+    undo() {
+        var length = this.history.length;
+        if (length <=1) {
+            return false;
+        }
+        else {
+            var el = this.history.pop();
+            this.currentState = this.history[this.history.length-1];
+            this.cancelled.push(el);
+            return true;
+        }
+    }
 
     /**
      * Goes redo to state.
      * Returns false if redo is not available.
      * @returns {Boolean}
      */
-    redo() {}
+    redo() {
+        /*var length = this.cancelled.length;
+        if (length <=1) {
+            console.log("noooooo");
+            return false;
+        }
+        else {
+            var el = this.history.pop();
+            this.currentState = this.history[this.history.length-1];
+            this.cancelled.push(el);
+            return true;
+        }*/
+    }
 
     /**
      * Clears transition history
@@ -122,16 +154,19 @@ var config = {
         },
     }
 };
-var stud2 = new FSM(config);
+/*var stud2 = new FSM(config);
 console.log(stud2.getState());
-/*stud2.changeState('hungry');
-console.log(stud2.getState());*/
-stud2.trigger('study');
-/*stud2.trigger('eat');*/
+console.log(stud2.history);
+stud2.changeState('hungry');
+console.log(stud2.history);
+console.log(stud2.cancelled);
+stud2.undo();
 console.log(stud2.getState());
-console.log(stud2.getStates());
-console.log(stud2.getStates('study'));
-console.log(stud2.getStates('get_hungry'));
+console.log(stud2.history);
+console.log(stud2.cancelled);*/
+
+
+
 /*stud2.trigger('kill');*/
 module.exports = FSM;
 
