@@ -31,6 +31,7 @@ class FSM {
         if(states.hasOwnProperty(state)) {
             this.currentState = state;
             this.history.push(this.currentState);
+            this.cancelled = [];
         }
         else throw new Error("State doesn't exist");
     }
@@ -46,6 +47,7 @@ class FSM {
         if (event in state.transitions) {
             this.currentState = state.transitions[event];
             this.history.push(this.currentState);
+            this.cancelled = [];
         }
         else throw new Error("State doesn't exist");
         
@@ -96,8 +98,8 @@ class FSM {
         }
         else {
             var el = this.history.pop();
-            this.currentState = this.history[this.history.length-1];
             this.cancelled.push(el);
+            this.currentState = this.history[this.history.length-1];
             return true;
         }
     }
@@ -108,66 +110,27 @@ class FSM {
      * @returns {Boolean}
      */
     redo() {
-        /*var length = this.cancelled.length;
-        if (length <=1) {
-            console.log("noooooo");
+        var length = this.cancelled.length;
+        if (length <1) {
             return false;
         }
         else {
-            var el = this.history.pop();
-            this.currentState = this.history[this.history.length-1];
-            this.cancelled.push(el);
+            var el = this.cancelled.pop();
+            this.history.push(el);
+            this.currentState = this.history[this.history.length-1];     
             return true;
-        }*/
+        }
     }
 
     /**
      * Clears transition history
      */
-    clearHistory() {}
+    clearHistory() {
+        this.history = [this.currentState];
+        this.cancelled=[];
+    }
 }
 
-var config = {
-    initial: 'normal',
-    states: {
-        normal: {
-            transitions: {
-                study: 'busy',
-            }
-        },
-        busy: {
-            transitions: {
-                get_tired: 'sleeping',
-                get_hungry: 'hungry',
-            }
-        },
-        hungry: {
-            transitions: {
-                eat: 'normal'
-            },
-        },
-        sleeping: {
-            transitions: {
-                get_hungry: 'hungry',
-                get_up: 'normal',
-            },
-        },
-    }
-};
-/*var stud2 = new FSM(config);
-console.log(stud2.getState());
-console.log(stud2.history);
-stud2.changeState('hungry');
-console.log(stud2.history);
-console.log(stud2.cancelled);
-stud2.undo();
-console.log(stud2.getState());
-console.log(stud2.history);
-console.log(stud2.cancelled);*/
-
-
-
-/*stud2.trigger('kill');*/
 module.exports = FSM;
 
 /** @Created by Uladzimir Halushka **/
