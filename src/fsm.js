@@ -6,42 +6,49 @@ class FSM {
      */
     constructor(config) {
         if(!config) throw new Error("Config not passed");
-        else this.config = config;
+        else {
+            this.config = config;
+            this.currentState = this.config.initial;
+        }
     }
-        
+    
     /**
      * Returns active state.
      * @returns {String}
      */
     getState() {
-        if (this.config) return this.config.initial;
+        if (this.config) return this.currentState;
     }
-
+    
     /**
      * Goes to specified state.
      * @param state
      */
     changeState(state) {
         var states = this.config.states;
-        if(states.hasOwnProperty(state)) {
-                this.config.initial = state; 
-            }
-        else throw new Error("false");
-            
-            /*if (state == 'undefined') 
-            else this.config = config;*/
+        if(states.hasOwnProperty(state)) this.currentState = state;
+        else throw new Error("State doesn't exist");
     }
-        
+    
     /**
      * Changes state according to event transition rules.
      * @param event
      */
-    trigger(event) {}
+    trigger(event) {
+        var states = this.config.states;
+        var prop = this.currentState;
+        var state = states[prop];
+        if (event in state.transitions) this.currentState = state.transitions[event];
+        else throw new Error("State doesn't exist");
+        
+    }
 
     /**
      * Resets FSM state to initial.
      */
-    reset() {}
+    reset() {
+        this.config.initial =  this.defaultState;
+    }
 
     /**
      * Returns an array of states for which there are specified event transition rules.
@@ -100,9 +107,12 @@ var config = {
 };
 var stud2 = new FSM(config);
 console.log(stud2.getState());
-stud2.changeState('hungry');
+/*stud2.changeState('hungry');
+console.log(stud2.getState());*/
+stud2.trigger('study');
+/*stud2.trigger('eat');*/
 console.log(stud2.getState());
-
+/*stud2.trigger('kill');*/
 module.exports = FSM;
 
 /** @Created by Uladzimir Halushka **/
